@@ -32,7 +32,11 @@ class build_ext (old_build_ext):
     user_options = old_build_ext.user_options + [
         ('fcompiler=', None,
          "specify the Fortran compiler type"),
+        ('build-static', None,
+         "build extensions as static libraries"),
         ]
+
+    boolean_options = old_build_ext.boolean_options + ['build-static']
 
     help_options = old_build_ext.help_options + [
         ('help-fcompiler',None, "list available Fortran compilers",
@@ -42,6 +46,7 @@ class build_ext (old_build_ext):
     def initialize_options(self):
         old_build_ext.initialize_options(self)
         self.fcompiler = None
+        self.build_static = None
 
     def finalize_options(self):
         incl_dirs = self.include_dirs
@@ -398,7 +403,10 @@ class build_ext (old_build_ext):
         libraries = self.get_libraries(ext)[:]
         library_dirs = ext.library_dirs[:]
 
-        linker = self.compiler.link_shared_object
+        if self.build_static:
+            linker = self.compiler.create_static_lib
+        else:
+            linker = self.compiler.link_shared_object
         # Always use system linker when using MSVC compiler.
         if self.compiler.compiler_type=='msvc':
             # expand libraries with fcompiler libraries as we are
@@ -406,23 +414,36 @@ class build_ext (old_build_ext):
             self._libs_with_msvc_and_fortran(fcompiler, libraries, library_dirs)
 
         elif ext.language in ['f77','f90'] and fcompiler is not None:
-            linker = fcompiler.link_shared_object
+            if self.build_static:
+                linker = fcompiler.create_static_lib
+            else:
+                linker = fcompiler.link_shared_object
         if ext.language=='c++' and cxx_compiler is not None:
-            linker = cxx_compiler.link_shared_object
+            if self.build_static:
+                linker = cxx_compiler.create_static_lib
+            else:
+                linker = cxx_compiler.link_shared_object
 
         if sys.version[:3]>='2.3':
             kws = {'target_lang':ext.language}
         else:
             kws = {}
 
-        linker(objects, ext_filename,
-               libraries=libraries,
-               library_dirs=library_dirs,
-               runtime_library_dirs=ext.runtime_library_dirs,
-               extra_postargs=extra_args,
-               export_symbols=self.get_export_symbols(ext),
-               debug=self.debug,
-               build_temp=self.build_temp,**kws)
+        if self.build_static:
+            ext_filename = os.path.splitext(ext_filename)[0]
+            linker(objects, ext_filename,
+                   debug=self.debug,
+                   output_dir=self.build_temp,
+                   **kws)
+        else:
+            linker(objects, ext_filename,
+                   libraries=libraries,
+                   library_dirs=library_dirs,
+                   runtime_library_dirs=ext.runtime_library_dirs,
+                   extra_postargs=extra_args,
+                   export_symbols=self.get_export_symbols(ext),
+                   debug=self.debug,
+                   build_temp=self.build_temp,**kws)
 
     def _add_dummy_mingwex_sym(self, c_sources):
         build_src = self.get_finalized_command("build_src").build_src
