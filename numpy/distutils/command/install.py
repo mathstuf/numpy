@@ -10,15 +10,26 @@ from distutils.file_util import write_file
 
 class install(old_install):
 
+    user_options = old_install.user_options + [
+        ('build-static', None,
+         "build extensions as static libraries"),
+        ]
+
     # Always run install_clib - the command is cheap, so no need to bypass it;
     # but it's not run by setuptools -- so it's run again in install_data
     sub_commands = old_install.sub_commands + [
         ('install_clib', lambda x: True)
     ]
 
+    def initialize_options(self):
+        old_install.initialize_options(self)
+        self.build_static = None
+
     def finalize_options (self):
         old_install.finalize_options(self)
         self.install_lib = self.install_libbase
+        build_ext = self.get_finalized_command('build_ext')
+        build_ext.build_static = self.build_static
 
     def setuptools_run(self):
         """ The setuptools version of the .run() method.
