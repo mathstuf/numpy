@@ -4,6 +4,7 @@
 from __future__ import division, absolute_import, print_function
 
 import os
+import string
 import sys
 from glob import glob
 
@@ -511,6 +512,24 @@ class build_ext (old_build_ext):
             filenames.extend(get_ext_source_files(ext))
         return filenames
 
+    def get_ext_filename(self, ext_name):
+        from distutils.sysconfig import get_config_var
+        ext_path = string.split(ext_name, '.')
+        # OS/2 has an 8 character module (extension) limit :-(
+        if os.name == "os2":
+            ext_path[len(ext_path) - 1] = ext_path[len(ext_path) - 1][:8]
+        # extensions in debug_mode are named 'module_d.pyd' under windows
+        if self.build_static:
+            ext = self.compiler.static_lib_extension
+        else:
+            ext = get_config_var('SO')
+        if os.name == 'nt' and self.debug:
+            return os.path.join(*ext_path) + '_d' + ext
+
+        # Similarly, extensions in debug mode are named 'module_d.so', to
+        # avoid adding the _d to the SO config variable:
+        return os.path.join(*ext_path) + (sys.pydebug and "_d" or "") + ext
+
     def get_outputs (self):
         self.check_extensions_list(self.extensions)
 
@@ -519,6 +538,10 @@ class build_ext (old_build_ext):
             if not ext.sources:
                 continue
             fullname = self.get_ext_fullname(ext.name)
-            outputs.append(os.path.join(self.build_lib,
-                                        self.get_ext_filename(fullname)))
+            if self.build_static:
+                outputs.append(os.path.join(self.build_lib,
+                                            self.get_ext_filename(fullname)))
+            else:
+                outputs.append(os.path.join(self.build_lib,
+                                            self.get_ext_filename(fullname)))
         return outputs
