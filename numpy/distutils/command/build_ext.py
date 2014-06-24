@@ -529,9 +529,15 @@ class build_ext (old_build_ext):
         if os.name == 'nt' and self.debug:
             return os.path.join(*ext_path) + '_d' + ext
 
+        return os.path.join(*ext_path) + ext
+        # FIXME: Seems that sys.pydebug doesn't exist in static builds?!
+        # Searching the source doesn't show where it comes from either, so it
+        # is considered MIA. Since we don't care about debug binaries with
+        # static, ignore it.
+
         # Similarly, extensions in debug mode are named 'module_d.so', to
         # avoid adding the _d to the SO config variable:
-        return os.path.join(*ext_path) + (sys.pydebug and "_d" or "") + ext
+        #return os.path.join(*ext_path) + (sys.pydebug and "_d" or "") + ext
 
     def get_outputs (self):
         self.check_extensions_list(self.extensions)
