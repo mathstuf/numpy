@@ -2,10 +2,7 @@ cmake_minimum_required(VERSION 2.8.8)
 
 project(numpy-static C)
 
-find_package(PythonInterp REQUIRED)
-find_package(PythonLibs REQUIRED)
-
-message(STATUS "Building numpy...")
+message(STATUS "Building numpy using ${PYTHON_EXECUTABLE}...")
 execute_process(
   COMMAND "${PYTHON_EXECUTABLE}" setup.py
           build
@@ -74,8 +71,6 @@ add_library(numpy STATIC
 
   # umath module
   "${numpy_src}/umath/umathmodule_onefile.c")
-target_link_libraries(numpy
-  "${PYTHON_LIBRARY}")
 install(
   TARGETS     numpy
   DESTINATION lib
