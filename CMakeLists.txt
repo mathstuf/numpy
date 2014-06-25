@@ -76,3 +76,7 @@ add_library(numpy STATIC
   "${numpy_src}/umath/umathmodule_onefile.c")
 target_link_libraries(numpy
   "${PYTHON_LIBRARY}")
+install(
+  TARGETS     numpy
+  DESTINATION lib
+  COMPONENT   runtime)
