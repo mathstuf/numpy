@@ -8,7 +8,7 @@ execute_process(
           build
           --build-base "${CMAKE_CURRENT_BINARY_DIR}/numpy-build"
           install
-          --prefix="${CMAKE_INSTALL_DIR}"
+          --prefix "${CMAKE_INSTALL_PREFIX}"
   WORKING_DIRECTORY
           "${CMAKE_CURRENT_SOURCE_DIR}"
   RESULT_VARIABLE res
