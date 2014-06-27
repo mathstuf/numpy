@@ -36,7 +36,7 @@ get_filename_component(core_dir "${config_path}" PATH)
 set(core_src "${core_dir}/src")
 
 set(CMAKE_C_FLAGS
-  "-pthread -fno-strict-aliasing -DNDEBUG -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fwrapv")
+  "-pthread -fno-strict-aliasing -DNDEBUG -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -m64 -mtune=generic -D_GNU_SOURCE -fwrapv")
 
 set(numpy_dir "${CMAKE_CURRENT_SOURCE_DIR}/numpy")
 include_directories(
