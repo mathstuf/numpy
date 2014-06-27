@@ -30,9 +30,9 @@ if (res)
 endif ()
 
 file(GLOB config_header "${CMAKE_CURRENT_BINARY_DIR}/numpy-build/src.*/numpy/core/include/numpy/config.h")
-get_filename_component(config_path "${config_header}" DIRECTORY)
-get_filename_component(config_path "${config_path}" DIRECTORY)
-get_filename_component(core_dir "${config_path}" DIRECTORY)
+get_filename_component(config_path "${config_header}" PATH)
+get_filename_component(config_path "${config_path}" PATH)
+get_filename_component(core_dir "${config_path}" PATH)
 set(core_src "${core_dir}/src")
 
 set(CMAKE_C_FLAGS
