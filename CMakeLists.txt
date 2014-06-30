@@ -54,6 +54,22 @@ include_directories(
   "${core_src}/multiarray"
   "${core_src}/umath")
 
+set(lapack_default OFF)
+if (out MATCHES "dlapack_lite")
+  set(lapack_default ON)
+endif ()
+
+option(NUMPY_LAPACK "Set to ON if numpy is building its own blas/lapack functions" OFF)
+set(lapack_srcs)
+if (NUMPY_LAPACK)
+  list(APPEND lapack_srcs
+    "${numpy_dir}/linalg/blas_lite.c"
+    "${numpy_dir}/linalg/dlamch.c"
+    "${numpy_dir}/linalg/dlapack_lite.c"
+    "${numpy_dir}/linalg/f2c_lite.c"
+    "${numpy_dir}/linalg/zlapack_lite.c")
+endif ()
+
 add_library(numpy STATIC
   # multiarray module
   "${numpy_dir}/core/src/multiarray/multiarraymodule_onefile.c"
@@ -76,6 +92,7 @@ add_library(numpy STATIC
   # lapack_lite module
   "${numpy_dir}/linalg/lapack_litemodule.c"
   "${numpy_dir}/linalg/python_xerbla.c"
+  ${lapack_srcs}
 
   # _dotblas module
   "${numpy_dir}/core/blasdot/_dotblas.c"
