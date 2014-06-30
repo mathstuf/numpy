@@ -54,14 +54,13 @@ include_directories(
   "${core_src}/multiarray"
   "${core_src}/umath")
 
-set(lapack_default OFF)
+set(numpy_lapack_functions OFF)
 if (out MATCHES "dlapack_lite")
-  set(lapack_default ON)
+  set(numpy_lapack_functions ON)
 endif ()
 
-option(NUMPY_LAPACK "Set to ON if numpy is building its own blas/lapack functions" OFF)
 set(lapack_srcs)
-if (NUMPY_LAPACK)
+if (numpy_lapack_functions)
   list(APPEND lapack_srcs
     "${numpy_dir}/linalg/blas_lite.c"
     "${numpy_dir}/linalg/dlamch.c"
