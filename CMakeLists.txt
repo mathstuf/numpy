@@ -59,6 +59,11 @@ if (out MATCHES "dlapack_lite")
   set(numpy_lapack_functions ON)
 endif ()
 
+set(numpy_blas_support OFF)
+if (out MATCHES "_dotblas")
+  set(numpy_blas_support ON)
+endif ()
+
 set(lapack_srcs)
 if (numpy_lapack_functions)
   list(APPEND lapack_srcs
@@ -67,6 +72,12 @@ if (numpy_lapack_functions)
     "${numpy_dir}/linalg/dlapack_lite.c"
     "${numpy_dir}/linalg/f2c_lite.c"
     "${numpy_dir}/linalg/zlapack_lite.c")
+endif ()
+
+set(blas_srcs)
+if (numpy_blas_support)
+  list(APPEND blas_srcs
+    "${numpy_dir}/core/blasdot/_dotblas.c")
 endif ()
 
 add_library(numpy STATIC
@@ -94,7 +105,7 @@ add_library(numpy STATIC
   ${lapack_srcs}
 
   # _dotblas module
-  "${numpy_dir}/core/blasdot/_dotblas.c"
+  ${blas_srcs}
 
   # fftpack_lite module
   "${numpy_dir}/fft/fftpack.c"
