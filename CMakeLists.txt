@@ -52,6 +52,7 @@ include_directories(SYSTEM "${PYTHON_INCLUDE_DIR}")
 include_directories(
   "${config_path}/numpy"
   "${core_src}/multiarray"
+  "${core_src}/private"
   "${core_src}/umath")
 
 set(numpy_lapack_functions OFF)
@@ -67,11 +68,11 @@ endif ()
 set(lapack_srcs)
 if (numpy_lapack_functions)
   list(APPEND lapack_srcs
-    "${numpy_dir}/linalg/blas_lite.c"
-    "${numpy_dir}/linalg/dlamch.c"
-    "${numpy_dir}/linalg/dlapack_lite.c"
-    "${numpy_dir}/linalg/f2c_lite.c"
-    "${numpy_dir}/linalg/zlapack_lite.c")
+    "${numpy_dir}/linalg/lapack_lite/blas_lite.c"
+    "${numpy_dir}/linalg/lapack_lite/dlamch.c"
+    "${numpy_dir}/linalg/lapack_lite/dlapack_lite.c"
+    "${numpy_dir}/linalg/lapack_lite/f2c_lite.c"
+    "${numpy_dir}/linalg/lapack_lite/zlapack_lite.c")
 endif ()
 
 set(blas_srcs)
@@ -90,8 +91,12 @@ add_library(numpy STATIC
   "${core_src}/npymath/npy_math.c"
   "${core_src}/npymath/npy_math_complex.c"
 
-  # _sort module
-  "${core_src}/_sortmodule.c"
+  # npysort library
+  "${core_src}/npysort/binsearch.c"
+  "${core_src}/npysort/heapsort.c"
+  "${core_src}/npysort/mergesort.c"
+  "${core_src}/npysort/quicksort.c"
+  "${core_src}/npysort/selection.c"
 
   # scalarmath module
   "${core_src}/scalarmathmodule.c"
@@ -101,7 +106,7 @@ add_library(numpy STATIC
 
   # lapack_lite module
   "${numpy_dir}/linalg/lapack_litemodule.c"
-  "${numpy_dir}/linalg/python_xerbla.c"
+  "${numpy_dir}/linalg/lapack_lite/python_xerbla.c"
   ${lapack_srcs}
 
   # _dotblas module
@@ -119,9 +124,6 @@ add_library(numpy STATIC
 
   # _compiled_base module
   "${numpy_dir}/lib/src/_compiled_base.c"
-
-  # _capi module
-  "${numpy_dir}/numarray/_capi.c"
   )
 install(
   TARGETS     numpy
